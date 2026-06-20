@@ -1,4 +1,3 @@
-using ToDoList.Dtos;
 using ToDoList.Models;
 
 namespace ToDoList.Repositories;
@@ -7,9 +6,9 @@ public class InMemoryTodoRepository : ITodoRepository
 {
     private readonly List<TodoItem> _todos = [];
     private int _lastAddedId = -1;
-    public TodoItem Create(CreateTodoRequest todoDto)
+    public TodoItem Create(TodoDetails todoDetails)
     {
-        var todo = new TodoItem(todoDto.Title, todoDto.Description)
+        var todo = new TodoItem(todoDetails)
         {
             Id = ++_lastAddedId, // Warning: no concurrency
             CreatedAt = DateTime.UtcNow
@@ -37,5 +36,13 @@ public class InMemoryTodoRepository : ITodoRepository
     public IReadOnlyList<TodoItem> GetAll()
     {
         return _todos.AsReadOnly();
+    }
+
+    public TodoItem? Update(int id, TodoDetails todoDetails)
+    {
+        var result = _todos.Find(x => x.Id == id);
+        result?.UpdateDetails(todoDetails);
+
+        return result;
     }
 }
