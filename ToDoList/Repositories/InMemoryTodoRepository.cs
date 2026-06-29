@@ -8,13 +8,8 @@ public class InMemoryTodoRepository : ITodoRepository
     private int _lastAddedId = -1;
     public TodoItem Create(TodoDetails todoDetails)
     {
-        var todo = new TodoItem(todoDetails)
-        {
-            Id = ++_lastAddedId, // Warning: no concurrency
-            CreatedAt = DateTime.UtcNow
-        };
+        var todo = new TodoItem(todoDetails);
         _todos.Add(todo);
-        
         return todo;
     }
 

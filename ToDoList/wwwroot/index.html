@@ -2,11 +2,20 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Мой API Клиент</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo List</title>
 </head>
 <body>
-<h1>Привет из Web API!</h1>
-<p>Эта страница отдается сервером ASP.NET Core.</p>
+<h1>ToDo List</h1>
 
+<form id="createForm">
+    <input type="text" id="titleInput" placeholder="Название задачи" required />
+    <input type="text" id="descriptionInput" placeholder="Описание" />
+    <button type="submit">Добавить</button>
+</form>
+
+<ul id="todoList"></ul>
+
+<script src="app.js"></script>
 </body>
 </html>

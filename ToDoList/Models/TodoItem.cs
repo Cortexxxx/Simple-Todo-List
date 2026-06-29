@@ -1,21 +1,31 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace ToDoList.Models;
 
-public class TodoItem(TodoDetails details)
+public class TodoItem
 {
-    public int Id { get; init; }
+    private TodoItem() { }
+    public TodoItem(TodoDetails details)
+    {
+        Title = details.Title;
+        Description = details.Description;
+        CreatedAt = DateTime.UtcNow;
+    }
     
-    public string Title { get; private set; } = details.Title;
+    public int Id { get; private set; }
 
-    public string Description { get; private set; } = details.Description;
+    public string Title { get; private set; }
+
+    public string Description { get; private set; }
     
     public bool IsDone { get; private set; }
     
-    public DateTime CreatedAt { get; init; }
+    public DateTime CreatedAt { get; private set; }
+
+    public bool IsDeleted { get; private set; } = false;
 
     public void MarkAsCompleted() => IsDone = true;
     public void MarkAsUncompleted() => IsDone = false;
+
+    public void Delete() => IsDeleted = true;
 
     public void UpdateDetails(TodoDetails details)
     {

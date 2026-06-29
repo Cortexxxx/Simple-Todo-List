@@ -1,3 +1,65 @@
-[Bb]in
-[Oo]bj
-.idea
+##     .NET Core / ASP.NET Core     ##
+######################################
+bin/
+obj/
+out/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bld/
+[Log]s/
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+##            User Secrets            ##
+######################################
+# Хранилище секретов для локальной разработки
+# (чтобы случайно не закоммитить пароли и ключи)
+secrets.json
+
+##         Entity Framework Core      ##
+######################################
+# Игнорируем логи миграций, если они генерируются инструментами
+*.migrations.id
+
+##               SQLite               ##
+######################################
+# Игнорируем саму базу данных (обычно вы хотите, чтобы она создавалась кодом через migrations/EnsureCreated)
+*.db
+*.sqlite
+*.sqlite3
+
+# Игнорируем временные файлы журналов SQLite (journal и Write-Ahead Log)
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+
+##            Окружение               ##
+######################################
+# Игнорируем файлы конфигурации содержащие реальные секреты prod/stage
+appsettings.Development.json
+# ПРИМЕЧАНИЕ: Оставьте appsettings.json в репозитории как шаблон (без реальных паролей)
+
+##                  OS                ##
+######################################
+.DS_Store
+Thumbs.db
+
+##              Rider / JetBrains             ##
+################################################
+.idea/
+*.sln.iml
+## Персональные настройки пользователя (темы, раскладки, открытые вкладки)
+.idea/.idea.*/.idea/workspace.xml
+.idea/.idea.*/.idea/shelf/
+.idea/.idea.*/.idea/contentModel.xml
+.idea/.idea.*/.idea/modules.xml
+.idea/.idea.*/.idea/tasks.xml

@@ -1,10 +1,22 @@
+using Microsoft.EntityFrameworkCore;
+using ToDoList.Constants;
+using ToDoList.Data;
 using ToDoList.Dtos;
-using ToDoList.Repositories;
+using ToDoList.Mappings;
+using ToDoList.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddSingleton<ITodoRepository, InMemoryTodoRepository>();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+}
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite(connectionString));
+builder.Services.AddScoped<TodoService>();
 
 var app = builder.Build();
 
@@ -13,35 +25,43 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseDefaultFiles(); 
-app.UseStaticFiles();
 
-app.MapPost("/todos", (CreateTodoRequest createTodoRequest, ITodoRepository repository) =>
+app.MapPost("/todos", async (TodoRequest todoRequest, TodoService todoService) =>
 {
-    var todoDetails = createTodoRequest.ToTodoDetails();
-    var todo = repository.Create(todoDetails);
-    return Results.CreatedAtRoute("GetTodo", new {id = todo.Id} , todo);
-}).WithName("CreateTodo");
+    var todo = await todoService.Create(todoRequest.ToDetails());
+    return Results.CreatedAtRoute(ApiEndpointNames.GetTodo, new {id = todo.Id} , todo);
+})
+.WithName(ApiEndpointNames.CreateTodo);
 
-app.MapGet("/todos/{id:int}", (int id, ITodoRepository repository) =>
+// #################
+
+app.MapGet("/todos/{id:int}", async (int id, TodoService todoService) =>
 {
-    var todo = repository.Get(id);
+    var todo = await todoService.Get(id);
     return todo != null ? Results.Ok(todo) : Results.NotFound();
-}).WithName("GetTodo");
+})
+.WithName(ApiEndpointNames.GetTodo);
 
-app.MapDelete("/todos/{id:int}", (int id, ITodoRepository repository) =>
+app.MapDelete("/todos/{id:int}", async (int id, TodoService todoService) =>
 {
-    var todo = repository.Remove(id);
-    return todo ? Results.NoContent() : Results.NotFound();
-}).WithName("DeleteTodo");
+    var result = await todoService.Remove(id);
+    return result ? Results.NoContent() : Results.NotFound();
+})
+.WithName(ApiEndpointNames.DeleteTodo);
 
-app.MapPut("/todos/{id:int}", (int id, CreateTodoRequest createTodoRequest, ITodoRepository repository) =>
+app.MapPut("/todos/{id:int}", async (int id, TodoRequest todoRequest, TodoService todoService) =>
 {
-    var todoDetails = createTodoRequest.ToTodoDetails();
-    var todo = repository.Update(id, todoDetails);
-    return todo != null ? Results.Ok(todo) : Results.NotFound();
-}).WithName("EditTodo");
+    var todoDetails = todoRequest.ToDetails();
+    var updatedTodo = await todoService.Update(id, todoDetails);
+    return updatedTodo != null ? Results.Ok(updatedTodo) : Results.NotFound();
+})
+.WithName(ApiEndpointNames.EditTodo);
 
-app.MapGet("/todos", (ITodoRepository repository) => Results.Ok(repository.GetAll())).WithName("GetAllTodo");
+app.MapGet("/todos", async (TodoService todoService) =>
+{
+    var todos = await todoService.GetAll();
+    return Results.Ok(todos);
+})
+.WithName(ApiEndpointNames.GetAllTodos);
 
 app.Run();

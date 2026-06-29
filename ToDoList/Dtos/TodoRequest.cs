@@ -3,7 +3,7 @@ using ToDoList.Models;
 
 namespace ToDoList.Dtos;
 
-public record CreateTodoRequest
+public record TodoRequest
 {
     [Required]
     [MinLength(1)]
@@ -13,12 +13,5 @@ public record CreateTodoRequest
     [MaxLength(300)]
     public string Description { get; set; }
 
-    public TodoDetails ToTodoDetails()
-    {
-        return new TodoDetails
-        {
-            Title = Title,
-            Description = Description
-        };
-    }
+
 }
