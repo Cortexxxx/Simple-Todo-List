@@ -1,7 +1,7 @@
 using ToDoList.Dtos;
 using ToDoList.Models;
 
-namespace ToDoList.Mappings;
+namespace ToDoList.Shared.Mappings;
 
 public static class TodoMappings
 {

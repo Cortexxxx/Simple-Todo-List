@@ -1,14 +1,14 @@
 using Microsoft.EntityFrameworkCore;
-using ToDoList.Data;
 using ToDoList.Dtos;
-using ToDoList.Mappings;
+using ToDoList.Infrastructure.Data;
 using ToDoList.Models;
+using ToDoList.Shared.Mappings;
 
 namespace ToDoList.Services;
 
 public class TodoService
 {
-    private AppDbContext _context;
+    private readonly AppDbContext _context;
 
     public TodoService(AppDbContext context)
     {
@@ -18,7 +18,7 @@ public class TodoService
     public async Task<TodoItem> Create(TodoDetails todoDetails)
     {
         var todo = new TodoItem(todoDetails);
-        await _context.AddAsync(todo);
+        _context.Add(todo);
         await _context.SaveChangesAsync();
         return todo;
     }
@@ -27,7 +27,7 @@ public class TodoService
     {
         var todo = await Get(id);
 
-        if (todo == null)
+        if (todo is null)
         {
             return false;
         }
@@ -41,7 +41,7 @@ public class TodoService
     {
         var todo = await _context.Todos.FindAsync(id);
 
-        return (bool)todo?.IsDeleted ? null : todo;
+        return todo is { IsDeleted: true } ? null : todo;
     }
 
     public async Task<IReadOnlyList<TodoResponse>> GetAll()
@@ -52,7 +52,7 @@ public class TodoService
     public async Task<TodoItem?> Update(int id, TodoDetails todoDetails)
     {
         var todo = await _context.Todos.FindAsync(id);
-        if (todo == null || todo.IsDeleted)
+        if (todo is null)
         {
             return null;
         }
@@ -61,5 +61,34 @@ public class TodoService
         await _context.SaveChangesAsync();
         
         return todo;
+    }
+
+    public async Task<bool> Complete(int id)
+    {
+        return await SetCompletionStatus(id, true);
+    }
+    
+    public async Task<bool> Uncomplete(int id)
+    {
+        return await SetCompletionStatus(id, false);
+    }
+
+    private async Task<bool> SetCompletionStatus(int id, bool isCompleted)
+    {
+        var task = await Get(id);
+
+        if (task is null)
+        {
+            return false;
+        }
+        
+        if (isCompleted)
+            task.MarkAsCompleted();
+        else 
+            task.MarkAsUncompleted();
+
+        await _context.SaveChangesAsync();
+        
+        return true;
     }
 }
