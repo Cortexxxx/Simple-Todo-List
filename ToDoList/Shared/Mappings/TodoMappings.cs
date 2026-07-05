@@ -18,6 +18,16 @@ public static class TodoMappings
         };
     }
     
+    public static TodoDetails ToDetails(this TodoRequest todoRequest, Guid userId)
+    {
+        return new TodoDetails
+        {
+            UserId = userId,
+            Title = todoRequest.Title,
+            Description = todoRequest.Description
+        };
+    }
+    
     public static TodoDetails ToDetails(this TodoRequest todoRequest)
     {
         return new TodoDetails

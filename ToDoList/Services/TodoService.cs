@@ -44,9 +44,9 @@ public class TodoService
         return todo is { IsDeleted: true } ? null : todo;
     }
 
-    public async Task<IReadOnlyList<TodoResponse>> GetAll()
+    public async Task<IReadOnlyList<TodoResponse>> GetAll(Guid userId)
     {
-        return await _context.Todos.Where(t => !t.IsDeleted).Select(t => t.ToResponse()).ToListAsync();
+        return await _context.Todos.Where(t => !t.IsDeleted && t.UserId == userId).Select(t => t.ToResponse()).ToListAsync();
     }
 
     public async Task<TodoItem?> Update(int id, TodoDetails todoDetails)

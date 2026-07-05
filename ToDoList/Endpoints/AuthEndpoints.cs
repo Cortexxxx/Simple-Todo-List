@@ -23,8 +23,8 @@ public static class AuthEndpoints
                 Email = request.Email
             };
             
-            var registrationResult = await userManager.CreateAsync(user, request.Password);
             
+            var registrationResult = await userManager.CreateAsync(user, request.Password);
             return !registrationResult.Succeeded ? Results.BadRequest(registrationResult.Errors) : Results.Ok(new { user.Id, user.Email });
         }).WithName(ApiEndpointNames.RegisterUser);
         
@@ -46,7 +46,7 @@ public static class AuthEndpoints
             
             if (!passwordCheck)
             {
-                Results.BadRequest(ApiErrors.IncorrectEmailOrPassword);
+                return Results.BadRequest(ApiErrors.IncorrectEmailOrPassword);
             }
 
             var token = provider.GenerateToken(user);
@@ -60,7 +60,6 @@ public static class AuthEndpoints
             };
             
             context.Response.Cookies.Append(CookieKeys.AuthTokenKey, token, cookieOptions);
-            
             return Results.Ok();
         }).WithName(ApiEndpointNames.LoginUser);
     }
