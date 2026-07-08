@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using ToDoList.Dtos;
@@ -62,5 +63,16 @@ public static class AuthEndpoints
             context.Response.Cookies.Append(CookieKeys.AuthTokenKey, token, cookieOptions);
             return Results.Ok();
         }).WithName(ApiEndpointNames.LoginUser);
+
+        group.MapPost("/logout", (HttpContext context) =>
+        {
+            context.Response.Cookies.Delete(CookieKeys.AuthTokenKey, new CookieOptions()
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });
+            return Results.NoContent();
+        }).WithName(ApiEndpointNames.LogoutUser);
     }
 }
