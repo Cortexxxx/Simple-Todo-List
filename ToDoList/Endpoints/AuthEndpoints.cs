@@ -1,7 +1,10 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using ToDoList.Dtos;
 using ToDoList.Infrastructure.Authentication;
 using ToDoList.Models;
@@ -18,6 +21,11 @@ public static class AuthEndpoints
 
         group.MapPost("/register", async (RegisterUserRequest request, UserManager<ApplicationUser> userManager) =>
         {
+            if (await userManager.FindByEmailAsync(request.Email) != null)
+            {
+                return Results.BadRequest(ApiErrors.UserIsAlreadyExists);
+            }
+            
             var user = new ApplicationUser
             {
                 UserName = request.Email,
@@ -38,10 +46,18 @@ public static class AuthEndpoints
         {
             var user = await userManager.FindByEmailAsync(request.Email);
             var jwtOptions = options.Value;
+            
+            if (context.Request.Cookies.TryGetValue(CookieKeys.AuthTokenKey, out string? _))
+            {
+                return Results.BadRequest(ApiErrors.UserIsAlreadyLoggedIn);
+            }
+            
             if (user == null)
             {
                 return Results.BadRequest(ApiErrors.IncorrectEmailOrPassword);
             }
+
+
 
             var passwordCheck = await userManager.CheckPasswordAsync(user, request.Password);
             
@@ -56,7 +72,7 @@ public static class AuthEndpoints
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddHours(jwtOptions.ExpiresHours)
             };
             
@@ -70,9 +86,34 @@ public static class AuthEndpoints
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict
+                SameSite = SameSiteMode.None
             });
             return Results.NoContent();
         }).WithName(ApiEndpointNames.LogoutUser);
+
+        group.MapGet("/status",  (HttpContext context, IOptions<JwtOptions> options) =>
+        {
+            var hasCookie = context.Request.Cookies.TryGetValue(CookieKeys.AuthTokenKey, out string? cookie);
+            if (!hasCookie || cookie == null)                 return Results.Json(new { error = "SUKA", detail = "POLNAYA PIZDA" }, statusCode: 401);
+            ;
+            var jwtHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                jwtHandler.ValidateToken(cookie, new TokenValidationParameters()
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.SecretKey))
+                }, out _);
+            }
+            catch (Exception e)
+            {
+                return Results.Json(new { error = e.Message, detail = e.InnerException?.Message }, statusCode: 401);
+            }
+
+            return Results.Ok();
+        }).WithName(ApiEndpointNames.GetUserStatus);
     }
 }
