@@ -94,8 +94,7 @@ public static class AuthEndpoints
         group.MapGet("/status",  (HttpContext context, IOptions<JwtOptions> options) =>
         {
             var hasCookie = context.Request.Cookies.TryGetValue(CookieKeys.AuthTokenKey, out string? cookie);
-            if (!hasCookie || cookie == null)                 return Results.Json(new { error = "SUKA", detail = "POLNAYA PIZDA" }, statusCode: 401);
-            ;
+            if (!hasCookie || cookie == null) return Results.Unauthorized();
             var jwtHandler = new JwtSecurityTokenHandler();
             try
             {
@@ -108,9 +107,9 @@ public static class AuthEndpoints
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.SecretKey))
                 }, out _);
             }
-            catch (Exception e)
+            catch (Exception _)
             {
-                return Results.Json(new { error = e.Message, detail = e.InnerException?.Message }, statusCode: 401);
+                return Results.Unauthorized();
             }
 
             return Results.Ok();
