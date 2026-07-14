@@ -14,26 +14,27 @@ public static class TodoMappings
             Description = todoItem.Description,
             IsDone = todoItem.IsDone,
             CreatedAt = todoItem.CreatedAt,
-            IsDeleted = todoItem.IsDeleted
+            IsDeleted = todoItem.IsDeleted,
+            TagIds = todoItem.Tags.Select(t => t.Id).ToList()
         };
     }
     
     public static TodoDetails ToDetails(this TodoRequest todoRequest, Guid userId)
     {
-        return new TodoDetails
-        {
-            UserId = userId,
-            Title = todoRequest.Title,
-            Description = todoRequest.Description
-        };
+        var details = todoRequest.ToDetails();
+        details.UserId = userId;
+        return details;
     }
     
     public static TodoDetails ToDetails(this TodoRequest todoRequest)
     {
-        return new TodoDetails
+        var details = new TodoDetails()
         {
             Title = todoRequest.Title,
-            Description = todoRequest.Description
+            Description = todoRequest.Description,
+            ScheduledDate = todoRequest.ScheduledDate,
+            Deadline = todoRequest.Deadline,
         };
+        return details;
     }
 }

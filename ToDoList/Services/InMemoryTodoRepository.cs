@@ -13,7 +13,7 @@ public class InMemoryTodoRepository : ITodoRepository
         return todo;
     }
 
-    public bool Remove(int id)
+    public bool Remove(Guid id)
     {
         var todo = Get(id);
         if (todo == null) return false;
@@ -23,7 +23,7 @@ public class InMemoryTodoRepository : ITodoRepository
         return true;
     }
 
-    public TodoItem? Get(int id)
+    public TodoItem? Get(Guid id)
     {
         return _todos.Find(t => t.Id == id);
     }
@@ -33,7 +33,7 @@ public class InMemoryTodoRepository : ITodoRepository
         return _todos.AsReadOnly();
     }
 
-    public TodoItem? Update(int id, TodoDetails todoDetails)
+    public TodoItem? Update(Guid id, TodoDetails todoDetails)
     {
         var result = _todos.Find(x => x.Id == id);
         result?.UpdateDetails(todoDetails);

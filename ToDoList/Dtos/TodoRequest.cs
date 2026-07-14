@@ -13,5 +13,7 @@ public record TodoRequest
     [MaxLength(300)]
     public string Description { get; set; }
 
-
+    public DateTime? ScheduledDate { get; set; } = null;
+    public DateTime? Deadline { get; set; } = null;
+    public ICollection<Guid> TagIds { get; set; }
 }

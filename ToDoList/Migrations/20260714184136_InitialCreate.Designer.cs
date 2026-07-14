@@ -11,8 +11,8 @@ using ToDoList.Infrastructure.Data;
 namespace ToDoList.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260705115126_Initial")]
-    partial class Initial
+    [Migration("20260714184136_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -148,6 +148,21 @@ namespace ToDoList.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("TagTodoItem", b =>
+                {
+                    b.Property<Guid>("TagsId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TodoItemsId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("TagsId", "TodoItemsId");
+
+                    b.HasIndex("TodoItemsId");
+
+                    b.ToTable("TagTodoItem");
+                });
+
             modelBuilder.Entity("ToDoList.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -212,13 +227,38 @@ namespace ToDoList.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("ToDoList.Models.Tag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tags");
+                });
+
             modelBuilder.Entity("ToDoList.Models.TodoItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("Deadline")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
@@ -230,6 +270,9 @@ namespace ToDoList.Migrations
 
                     b.Property<bool>("IsDone")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("ScheduledDate")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -290,6 +333,21 @@ namespace ToDoList.Migrations
                     b.HasOne("ToDoList.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TagTodoItem", b =>
+                {
+                    b.HasOne("ToDoList.Models.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ToDoList.Models.TodoItem", null)
+                        .WithMany()
+                        .HasForeignKey("TodoItemsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

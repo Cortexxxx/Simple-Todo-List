@@ -15,15 +15,23 @@ public class TodoService
         _context = context;
     }
 
-    public async Task<TodoItem> Create(TodoDetails todoDetails)
+    public async Task<TodoItem> Create(TodoDetails todoDetails, ICollection<Guid> tagIds)
     {
+        if (tagIds.Count != 0)
+        {
+            var tags = await _context.Tags
+                .Where(t =>  tagIds.Contains(t.Id) && t.UserId == todoDetails.UserId)
+                .ToListAsync();
+            todoDetails.Tags = tags;
+        }
+        
         var todo = new TodoItem(todoDetails);
         _context.Add(todo);
         await _context.SaveChangesAsync();
         return todo;
     }
 
-    public async Task<bool> Remove(int id)
+    public async Task<bool> Remove(Guid id)
     {
         var todo = await Get(id);
 
@@ -37,7 +45,7 @@ public class TodoService
         return true;
     }
 
-    public async Task<TodoItem?> Get(int id)
+    public async Task<TodoItem?> Get(Guid id)
     {
         var todo = await _context.Todos.FindAsync(id);
 
@@ -49,7 +57,7 @@ public class TodoService
         return await _context.Todos.Where(t => !t.IsDeleted && t.UserId == userId).Select(t => t.ToResponse()).ToListAsync();
     }
 
-    public async Task<TodoItem?> Update(int id, TodoDetails todoDetails)
+    public async Task<TodoItem?> Update(Guid id, TodoDetails todoDetails)
     {
         var todo = await _context.Todos.FindAsync(id);
         if (todo is null)
@@ -63,17 +71,17 @@ public class TodoService
         return todo;
     }
 
-    public async Task<bool> Complete(int id)
+    public async Task<bool> Complete(Guid id)
     {
         return await SetCompletionStatus(id, true);
     }
     
-    public async Task<bool> Uncomplete(int id)
+    public async Task<bool> Uncomplete(Guid id)
     {
         return await SetCompletionStatus(id, false);
     }
 
-    private async Task<bool> SetCompletionStatus(int id, bool isCompleted)
+    private async Task<bool> SetCompletionStatus(Guid id, bool isCompleted)
     {
         var task = await Get(id);
 

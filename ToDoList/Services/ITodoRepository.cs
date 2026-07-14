@@ -5,8 +5,8 @@ namespace ToDoList.Services;
 public interface ITodoRepository
 {
     public TodoItem Create(TodoDetails todoDetails);
-    public bool Remove(int id);
-    public TodoItem? Get(int id);
+    public bool Remove(Guid id);
+    public TodoItem? Get(Guid id);
     public IReadOnlyList<TodoItem> GetAll();
-    public TodoItem? Update(int id, TodoDetails todoDetails);
+    public TodoItem? Update(Guid id, TodoDetails todoDetails);
 }
