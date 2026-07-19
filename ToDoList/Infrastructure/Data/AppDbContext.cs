@@ -9,7 +9,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
 
     public DbSet<TodoItem> Todos { get; set; }
-    public DbSet<Tag> Tags { get; set; }
+    public DbSet<Tag?> Tags { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -37,6 +37,7 @@ builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddApiAuthentication(builder.Configuration);
 
 builder.Services.AddScoped<TodoService>();
+builder.Services.AddScoped<TagsService>();
 
 var app = builder.Build();
 
@@ -53,7 +54,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapTodoEndpoints();
 app.MapAuthEndpoints();
+app.MapTodoEndpoints();
+app.MapTagsEndpoints();
 
 app.Run();

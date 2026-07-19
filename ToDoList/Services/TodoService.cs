@@ -52,9 +52,48 @@ public class TodoService
         return todo is { IsDeleted: true } ? null : todo;
     }
 
-    public async Task<IReadOnlyList<TodoResponse>> GetAll(Guid userId)
+    public async Task<IReadOnlyList<TodoResponse>> GetAll(Guid userId, string folder, string? currentDateTime)
     {
-        return await _context.Todos.Where(t => !t.IsDeleted && t.UserId == userId).Select(t => t.ToResponse()).ToListAsync();
+        var query = _context.Todos.Include(t => t.Tags).Where(t => t.UserId == userId);
+        var userDatetime = DateTime.UtcNow;
+        
+        if (!string.IsNullOrEmpty(currentDateTime) && DateTime.TryParse(currentDateTime, out var parsedDate))
+        {
+            userDatetime = parsedDate;
+        }
+
+        if (folder != "deleted")
+        {
+            query = query.Where(t => !t.IsDeleted);
+        }
+
+        var userDate = userDatetime.Date;
+        switch (folder)
+        {
+            case "today":
+                query = query.Where(t => t.ScheduledDate != null && (t.ScheduledDate.Value.Date == userDate || (!t.IsDone && t.ScheduledDate.Value < userDate )));
+                break;
+            case "tomorrow":
+                query = query.Where(t => t.ScheduledDate != null && (t.ScheduledDate.Value.Date == userDate.AddDays(1)));
+                break;
+            case "inbox":
+                query = query.Where(t => t.ScheduledDate == null);
+                break;
+            case "deleted":
+                query = query.Where(t => t.IsDeleted);
+                break;
+            case "completed":
+                query = query.Where(t => t.IsDone);
+                break;
+            default:
+                var tagString = folder.StartsWith("tag-") ? folder.Replace("tag-", "") : folder; 
+                if (Guid.TryParse(tagString, out var tagGuid))
+                {
+                    query = query.Where(t => t.Tags.Any(tag => tag.Id == tagGuid));
+                }
+                break;
+        }
+        return await query.Select(t => t.ToResponse()).ToListAsync();
     }
 
     public async Task<TodoItem?> Update(Guid id, TodoDetails todoDetails)

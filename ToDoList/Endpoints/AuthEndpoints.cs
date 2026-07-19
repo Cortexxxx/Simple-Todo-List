@@ -1,7 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-using System.Text.Json;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

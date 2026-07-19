@@ -21,7 +21,7 @@ public class TodoItem
 
     public string Description { get; private set; }
     
-    public ICollection<Tag> Tags { get; set; } = new List<Tag>();
+    public ICollection<Tag?> Tags { get; set; } = new List<Tag?>();
     
     public bool IsDone { get; private set; }
     

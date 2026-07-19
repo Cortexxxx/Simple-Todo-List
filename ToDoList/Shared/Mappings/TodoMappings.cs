@@ -15,6 +15,8 @@ public static class TodoMappings
             IsDone = todoItem.IsDone,
             CreatedAt = todoItem.CreatedAt,
             IsDeleted = todoItem.IsDeleted,
+            Deadline = todoItem.Deadline,
+            ScheduledDate = todoItem.ScheduledDate, 
             TagIds = todoItem.Tags.Select(t => t.Id).ToList()
         };
     }

@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
 using ToDoList.Dtos;
 using ToDoList.Infrastructure.Data;
 using ToDoList.Services;
@@ -13,27 +11,13 @@ public static class TodoEndpoints
 {
     public static void MapTodoEndpoints(this IEndpointRouteBuilder app)
     {
-        var todosGroup = app.MapGroup("/api/todos").RequireAuthorization().AddEndpointFilter(async (context, next) =>
-        {
-            var userIdClaim = context.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-            
-            if (userIdClaim is null || !Guid.TryParse(userIdClaim.Value, out var userGuid))
-            {
-                return Results.Unauthorized();
-            }
-            
-            context.HttpContext.SetUserId(userGuid);
-            
-            return await next(context);
-        });
+        var todosGroup = app.MapGroup("/api/todos").RequireAuthorization().RequireUserContext();
 
         todosGroup.MapPost("/", async (
             TodoRequest todoRequest, 
             TodoService todoService, 
             HttpContext context) =>
         {
-            Console.WriteLine(
-                $"{todoRequest.Title}, {todoRequest.Description}, {todoRequest.Deadline}, {todoRequest.ScheduledDate}, {string.Join(':', todoRequest.TagIds)}");
             var todo = await todoService.Create(todoRequest.ToDetails(context.GetUserId()), todoRequest.TagIds);
             return Results.CreatedAtRoute(ApiEndpointNames.GetTodo, new {id = todo.Id} , todo.ToResponse());
         })
@@ -41,7 +25,7 @@ public static class TodoEndpoints
         
         todosGroup.MapGet("", async (TodoService todoService, HttpContext context) =>
         {
-            var todos = await todoService.GetAll(context.GetUserId());
+            var todos = await todoService.GetAll(context.GetUserId(), context.Request.Query["folder"]!, context.Request.Query["dateTime"]);
             return Results.Ok(todos);
         })
         .WithName(ApiEndpointNames.GetAllTodos);
