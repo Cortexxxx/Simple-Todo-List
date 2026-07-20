@@ -2,6 +2,6 @@ namespace ToDoList.Dtos;
 
 public record TagRequest()
 {
-    public string Name { get; set; }
-    public string Color { get; set; }
+    public string Name { get; init; } = string.Empty;
+    public string Color { get; init; } = string.Empty;
 }

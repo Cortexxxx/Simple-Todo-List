@@ -1,6 +1,7 @@
 using ToDoList.Dtos;
 using ToDoList.Infrastructure.Data;
 using ToDoList.Services;
+using ToDoList.Shared.Constants;
 using ToDoList.Shared.Extensions;
 using ToDoList.Shared.Mappings;
 
@@ -16,14 +17,14 @@ public static class TagsEndpoints
         {
             var tag = await tagsService.Create(tagRequest, context.GetUserId());
             return Results.Ok(tag.ToResponse());
-        });
+        }).Validate<TagRequest>().WithName(ApiEndpointNames.CreateTag);
 
         group.MapGet("", async (TagsService tagsService, HttpContext context) =>
         {
             var tags = await tagsService.GetAll(context.GetUserId());
             var response = tags.Select(t => t.ToResponse());
             return Results.Ok(response);
-        });
+        }).WithName(ApiEndpointNames.GetAllTags);
         
         var concreteTagGroup = group.MapGroup("/{id:guid}").AddEndpointFilter(async (context, next) =>
         {
@@ -44,12 +45,12 @@ public static class TagsEndpoints
         {
             var tag = await tagsService.Get(id);
             return tag == null ? Results.NotFound() : Results.Ok(tag.ToResponse());
-        });
+        }).WithName(ApiEndpointNames.GetTag);;
 
         concreteTagGroup.MapDelete("", async (Guid id, TagsService tagsService) =>
         {
             await tagsService.Delete(id);
             return Results.NoContent();
-        });
+        }).WithName(ApiEndpointNames.DeleteTag);;
     }
 }

@@ -14,4 +14,9 @@ public static class ApiEndpointNames
     public const string LoginUser = "LoginUser";
     public const string LogoutUser = "LogoutUser";
     public const string GetUserStatus = "GetUserStatus";
+    
+    public const string CreateTag = "CreateTag";
+    public const string DeleteTag = "DeleteTag";
+    public const string GetTag = "GetTag";
+    public const string GetAllTags = "GetTags";
 }
