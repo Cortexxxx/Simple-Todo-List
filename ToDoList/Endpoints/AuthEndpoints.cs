@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -17,12 +18,13 @@ public static class AuthEndpoints
     {
         var group = app.MapGroup("/api/auth");
 
-        group.MapPost("/register", async (RegisterUserRequest request, UserManager<ApplicationUser> userManager) =>
+        group.MapPost("/register", async (
+            RegisterUserRequest request, 
+            UserManager<ApplicationUser> userManager, 
+            IValidator<RegisterUserRequest> validator) =>
         {
-            if (await userManager.FindByEmailAsync(request.Email) != null)
-            {
-                return Results.BadRequest(ApiErrors.UserIsAlreadyExists);
-            }
+            var validationResult = await validator.ValidateAsync(request);
+            if (!validationResult.IsValid) return Results.ValidationProblem(validationResult.ToDictionary());
             
             var user = new ApplicationUser
             {
@@ -32,7 +34,13 @@ public static class AuthEndpoints
             
             
             var registrationResult = await userManager.CreateAsync(user, request.Password);
-            return !registrationResult.Succeeded ? Results.BadRequest(registrationResult.Errors) : Results.Ok(new { user.Id, user.Email });
+            if (!registrationResult.Succeeded)
+            {
+                return Results.Problem(
+                    detail: "Не удалось зарегистрировать пользователя из-за внутренней ошибки сервера.",
+                    statusCode: StatusCodes.Status500InternalServerError);
+            }
+            return Results.Ok(new { user.Id, user.Email });
         }).WithName(ApiEndpointNames.RegisterUser);
         
         group.MapPost("/login", async (
@@ -40,12 +48,18 @@ public static class AuthEndpoints
             UserManager<ApplicationUser> userManager, 
             IJwtProvider provider,
             HttpContext context, 
-            IOptions<JwtOptions> options) =>
+            IOptions<JwtOptions> options,
+            IValidator<LoginUserRequest> validator) =>
         {
+            var validationResult = await validator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                return Results.BadRequest(validationResult.ToDictionary());
+            }
             var user = await userManager.FindByEmailAsync(request.Email);
             var jwtOptions = options.Value;
             
-            if (context.Request.Cookies.TryGetValue(CookieKeys.AuthTokenKey, out string? _))
+            if (context.Request.Cookies.TryGetValue(CookieKeys.AuthTokenKey, out _))
             {
                 return Results.BadRequest(ApiErrors.UserIsAlreadyLoggedIn);
             }
@@ -54,9 +68,7 @@ public static class AuthEndpoints
             {
                 return Results.BadRequest(ApiErrors.IncorrectEmailOrPassword);
             }
-
-
-
+            
             var passwordCheck = await userManager.CheckPasswordAsync(user, request.Password);
             
             if (!passwordCheck)

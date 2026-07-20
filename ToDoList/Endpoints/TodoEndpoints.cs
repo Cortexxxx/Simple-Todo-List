@@ -18,6 +18,7 @@ public static class TodoEndpoints
             TodoService todoService, 
             HttpContext context) =>
         {
+            
             var todo = await todoService.Create(todoRequest.ToDetails(context.GetUserId()), todoRequest.TagIds);
             return Results.CreatedAtRoute(ApiEndpointNames.GetTodo, new {id = todo.Id} , todo.ToResponse());
         })

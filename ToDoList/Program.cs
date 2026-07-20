@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using ToDoList.Endpoints;
 using ToDoList.Infrastructure.Authentication;
@@ -5,6 +6,7 @@ using ToDoList.Infrastructure.Data;
 using ToDoList.Models;
 using ToDoList.Services;
 using ToDoList.Shared.Extensions;
+using ToDoList.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +32,18 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
-        options.SignIn.RequireConfirmedAccount = true)
+    {
+        options.SignIn.RequireConfirmedAccount = true;
+        options.Password.RequireDigit = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequiredLength = 1;
+        options.Password.RequiredUniqueChars = 0;
+
+        options.User.RequireUniqueEmail = false; 
+        options.User.AllowedUserNameCharacters = null;
+    })
     .AddEntityFrameworkStores<AppDbContext>();  
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
@@ -38,6 +51,7 @@ builder.Services.AddApiAuthentication(builder.Configuration);
 
 builder.Services.AddScoped<TodoService>();
 builder.Services.AddScoped<TagsService>();
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 var app = builder.Build();
 
