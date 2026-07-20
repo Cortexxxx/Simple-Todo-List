@@ -8,5 +8,5 @@ public record TodoRequest
 
     public DateTime? ScheduledDate { get; set; } = null;
     public DateTime? Deadline { get; set; } = null;
-    public ICollection<Guid> TagIds { get; set; }
+    public ICollection<Guid> TagIds { get; set; } = new List<Guid>();
 }

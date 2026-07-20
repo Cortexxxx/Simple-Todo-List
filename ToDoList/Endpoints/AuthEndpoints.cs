@@ -9,6 +9,7 @@ using ToDoList.Infrastructure.Authentication;
 using ToDoList.Models;
 using ToDoList.Services;
 using ToDoList.Shared.Constants;
+using ToDoList.Shared.Extensions;
 
 namespace ToDoList.Endpoints;
 
@@ -20,18 +21,13 @@ public static class AuthEndpoints
 
         group.MapPost("/register", async (
             RegisterUserRequest request, 
-            UserManager<ApplicationUser> userManager, 
-            IValidator<RegisterUserRequest> validator) =>
+            UserManager<ApplicationUser> userManager) =>
         {
-            var validationResult = await validator.ValidateAsync(request);
-            if (!validationResult.IsValid) return Results.ValidationProblem(validationResult.ToDictionary());
-            
             var user = new ApplicationUser
             {
                 UserName = request.Email,
                 Email = request.Email
             };
-            
             
             var registrationResult = await userManager.CreateAsync(user, request.Password);
             if (!registrationResult.Succeeded)
@@ -41,21 +37,15 @@ public static class AuthEndpoints
                     statusCode: StatusCodes.Status500InternalServerError);
             }
             return Results.Ok(new { user.Id, user.Email });
-        }).WithName(ApiEndpointNames.RegisterUser);
+        }).Validate<RegisterUserRequest>().WithName(ApiEndpointNames.RegisterUser);
         
         group.MapPost("/login", async (
             LoginUserRequest request, 
             UserManager<ApplicationUser> userManager, 
             IJwtProvider provider,
             HttpContext context, 
-            IOptions<JwtOptions> options,
-            IValidator<LoginUserRequest> validator) =>
+            IOptions<JwtOptions> options) =>
         {
-            var validationResult = await validator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                return Results.BadRequest(validationResult.ToDictionary());
-            }
             var user = await userManager.FindByEmailAsync(request.Email);
             var jwtOptions = options.Value;
             
@@ -88,7 +78,7 @@ public static class AuthEndpoints
             
             context.Response.Cookies.Append(CookieKeys.AuthTokenKey, token, cookieOptions);
             return Results.Ok();
-        }).WithName(ApiEndpointNames.LoginUser);
+        }).Validate<LoginUserRequest>().WithName(ApiEndpointNames.LoginUser);
 
         group.MapPost("/logout", (HttpContext context) =>
         {

@@ -1,9 +1,11 @@
+using FluentValidation;
 using ToDoList.Dtos;
 using ToDoList.Infrastructure.Data;
 using ToDoList.Services;
 using ToDoList.Shared.Constants;
 using ToDoList.Shared.Extensions;
 using ToDoList.Shared.Mappings;
+using ToDoList.Validators;
 
 namespace ToDoList.Endpoints;
 
@@ -16,22 +18,25 @@ public static class TodoEndpoints
         todosGroup.MapPost("/", async (
             TodoRequest todoRequest, 
             TodoService todoService, 
-            HttpContext context) =>
-        {
-            
-            var todo = await todoService.Create(todoRequest.ToDetails(context.GetUserId()), todoRequest.TagIds);
+            HttpContext context) => 
+        { 
+            var todo = await todoService.Create(todoRequest.ToDetails(context.GetUserId()), todoRequest.TagIds); 
             return Results.CreatedAtRoute(ApiEndpointNames.GetTodo, new {id = todo.Id} , todo.ToResponse());
         })
+        .Validate<TodoRequest>()
         .WithName(ApiEndpointNames.CreateTodo);
         
-        todosGroup.MapGet("", async (TodoService todoService, HttpContext context) =>
+        todosGroup.MapGet("", async (
+                string? folder, 
+                string? dateTime,
+                TodoService todoService, 
+                HttpContext context) =>
         {
-            var todos = await todoService.GetAll(context.GetUserId(), context.Request.Query["folder"]!, context.Request.Query["dateTime"]);
+            var todos = await todoService.GetAll(context.GetUserId(), folder, dateTime);
             return Results.Ok(todos);
         })
         .WithName(ApiEndpointNames.GetAllTodos);
-
-
+        
         var concreteTodoGroup = todosGroup.MapGroup("/{id:guid}").AddEndpointFilter(async (context, next) =>
         {
             var userId = context.HttpContext.GetUserId();
@@ -64,12 +69,13 @@ public static class TodoEndpoints
         concreteTodoGroup.MapPut("", async (
             Guid id, 
             TodoRequest todoRequest, 
-            TodoService todoService) =>
-        {
+            TodoService todoService) => 
+        { 
             var todoDetails = todoRequest.ToDetails();
             var updatedTodo = await todoService.Update(id, todoDetails);
             return updatedTodo != null ? Results.Ok(updatedTodo) : Results.NotFound();
         })
+        .Validate<TodoRequest>()
         .WithName(ApiEndpointNames.EditTodo);
         
         concreteTodoGroup.MapPut("/complete", async (Guid id, TodoService todoService) =>
@@ -85,7 +91,5 @@ public static class TodoEndpoints
             return result ? Results.Ok() : Results.NotFound();
         })
         .WithName(ApiEndpointNames.UncompleteTodo);
-        
-
     }
 }
