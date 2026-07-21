@@ -29,10 +29,11 @@ public static class TodoEndpoints
         todosGroup.MapGet("", async (
                 string? folder, 
                 string? dateTime,
+                [AsParameters] GetTodosQuery getTodosQuery,
                 TodoService todoService, 
                 HttpContext context) =>
         {
-            var todos = await todoService.GetAll(context.GetUserId(), folder, dateTime);
+            var todos = await todoService.GetAll(context.GetUserId(), folder, dateTime, getTodosQuery);
             return Results.Ok(todos);
         })
         .WithName(ApiEndpointNames.GetAllTodos);
@@ -55,6 +56,7 @@ public static class TodoEndpoints
         concreteTodoGroup.MapGet("", async (Guid id, TodoService todoService) =>
         {
             var todo = await todoService.Get(id);
+
             return todo != null ? Results.Ok(todo) : Results.NotFound();
         })
         .WithName(ApiEndpointNames.GetTodo);

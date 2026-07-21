@@ -1,12 +1,13 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using ToDoList.Dtos;
+using ToDoList.Models;
 
 namespace ToDoList.Validators;
 
 public class RegisterUserRequestValidator : AbstractValidator<RegisterUserRequest>
 {
-    public RegisterUserRequestValidator(UserManager<IdentityUser> userManager)
+    public RegisterUserRequestValidator(UserManager<ApplicationUser> userManager)
     {
         RuleFor(request => request.Email)
             .NotEmpty().WithMessage("Почта не должна быть пустой")
@@ -15,7 +16,7 @@ public class RegisterUserRequestValidator : AbstractValidator<RegisterUserReques
             {
                 var userExists = await userManager.FindByEmailAsync(email);
                 return userExists == null;
-            })
+            })  
             .WithMessage("Пользователь с такой почтой уже зарегистрирован");;
 
         RuleFor(request => request.Password)

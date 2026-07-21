@@ -12,6 +12,7 @@ public static class TodoMappings
             Id = todoItem.Id,
             Title = todoItem.Title,
             Description = todoItem.Description,
+            Priority = todoItem.Priority,
             IsDone = todoItem.IsDone,
             CreatedAt = todoItem.CreatedAt,
             IsDeleted = todoItem.IsDeleted,
@@ -34,6 +35,7 @@ public static class TodoMappings
         {
             Title = todoRequest.Title,
             Description = todoRequest.Description,
+            Priority = todoRequest.Priority,
             ScheduledDate = todoRequest.ScheduledDate,
             Deadline = todoRequest.Deadline,
         };

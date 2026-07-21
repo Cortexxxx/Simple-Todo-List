@@ -1,6 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
-using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -33,7 +33,7 @@ public static class AuthEndpoints
             if (!registrationResult.Succeeded)
             {
                 return Results.Problem(
-                    detail: "Не удалось зарегистрировать пользователя из-за внутренней ошибки сервера.",
+                    detail: ApiErrors.InternalServerError,
                     statusCode: StatusCodes.Status500InternalServerError);
             }
             return Results.Ok(new { user.Id, user.Email });
@@ -51,19 +51,19 @@ public static class AuthEndpoints
             
             if (context.Request.Cookies.TryGetValue(CookieKeys.AuthTokenKey, out _))
             {
-                return Results.BadRequest(ApiErrors.UserIsAlreadyLoggedIn);
+                return Results.Problem(detail: ApiErrors.UserIsAlreadyLoggedIn, statusCode: StatusCodes.Status400BadRequest);
             }
             
             if (user == null)
             {
-                return Results.BadRequest(ApiErrors.IncorrectEmailOrPassword);
+                return Results.Problem(detail: ApiErrors.IncorrectEmailOrPassword, statusCode: StatusCodes.Status400BadRequest);
             }
             
             var passwordCheck = await userManager.CheckPasswordAsync(user, request.Password);
             
             if (!passwordCheck)
             {
-                return Results.BadRequest(ApiErrors.IncorrectEmailOrPassword);
+                return Results.Problem(detail: ApiErrors.IncorrectEmailOrPassword, statusCode: 400);
             }
 
             var token = provider.GenerateToken(user);
@@ -98,7 +98,7 @@ public static class AuthEndpoints
             var jwtHandler = new JwtSecurityTokenHandler();
             try
             {
-                jwtHandler.ValidateToken(cookie, new TokenValidationParameters()
+                var principal = jwtHandler.ValidateToken(cookie, new TokenValidationParameters()
                 {
                     ValidateIssuer = false,
                     ValidateAudience = false,
@@ -106,13 +106,16 @@ public static class AuthEndpoints
                     ValidateLifetime = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.SecretKey))
                 }, out _);
+                var email = principal.FindFirst(ClaimTypes.Email)?.Value 
+                            ?? principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+                            ?? principal.Identity?.Name;
+                return string.IsNullOrEmpty(email) ? Results.Unauthorized() : Results.Ok(new {email});
             }
             catch (Exception _)
             {
                 return Results.Unauthorized();
             }
 
-            return Results.Ok();
         }).WithName(ApiEndpointNames.GetUserStatus);
     }
 }

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ToDoList.Dtos;
 using ToDoList.Infrastructure.Data;
 using ToDoList.Models;
+using ToDoList.Shared.Extensions;
 using ToDoList.Shared.Mappings;
 
 namespace ToDoList.Services;
@@ -52,48 +53,19 @@ public class TodoService
         return todo is { IsDeleted: true } ? null : todo;
     }
 
-    public async Task<IReadOnlyList<TodoResponse>> GetAll(Guid userId, string folder, string? currentDateTime)
+    public async Task<IReadOnlyList<TodoResponse>> GetAll(
+        Guid userId, 
+        string folder, 
+        string? currentDateTime, 
+        GetTodosQuery query)
     {
-        var query = _context.Todos.Include(t => t.Tags).Where(t => t.UserId == userId);
-        var userDatetime = DateTime.UtcNow;
-        
-        if (!string.IsNullOrEmpty(currentDateTime) && DateTime.TryParse(currentDateTime, out var parsedDate))
-        {
-            userDatetime = parsedDate;
-        }
 
-        if (folder != "deleted")
-        {
-            query = query.Where(t => !t.IsDeleted);
-        }
-
-        var userDate = userDatetime.Date;
-        switch (folder)
-        {
-            case "today":
-                query = query.Where(t => t.ScheduledDate != null && (t.ScheduledDate.Value.Date == userDate || (!t.IsDone && t.ScheduledDate.Value < userDate )));
-                break;
-            case "tomorrow":
-                query = query.Where(t => t.ScheduledDate != null && (t.ScheduledDate.Value.Date == userDate.AddDays(1)));
-                break;
-            case "inbox":
-                query = query.Where(t => t.ScheduledDate == null);
-                break;
-            case "deleted":
-                query = query.Where(t => t.IsDeleted);
-                break;
-            case "completed":
-                query = query.Where(t => t.IsDone);
-                break;
-            default:
-                var tagString = folder.StartsWith("tag-") ? folder.Replace("tag-", "") : folder; 
-                if (Guid.TryParse(tagString, out var tagGuid))
-                {
-                    query = query.Where(t => t.Tags.Any(tag => tag.Id == tagGuid));
-                }
-                break;
-        }
-        return await query.Select(t => t.ToResponse()).ToListAsync();
+        var tasksQuery = _context.Todos
+            .Include(t => t.Tags)
+            .FilterByUser(userId)
+            .FilterByFolder(folder, currentDateTime)
+            .ApplySorting(query);
+        return await tasksQuery.Select(t => t.ToResponse()).ToListAsync();
     }
 
     public async Task<TodoItem?> Update(Guid id, TodoDetails todoDetails)

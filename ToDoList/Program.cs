@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using ToDoList.Endpoints;
@@ -6,7 +7,6 @@ using ToDoList.Infrastructure.Data;
 using ToDoList.Models;
 using ToDoList.Services;
 using ToDoList.Shared.Extensions;
-using ToDoList.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,10 +48,13 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddApiAuthentication(builder.Configuration);
-
 builder.Services.AddScoped<TodoService>();
 builder.Services.AddScoped<TagsService>();
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 var app = builder.Build();
 

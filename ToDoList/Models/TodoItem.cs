@@ -1,3 +1,5 @@
+using ToDoList.Models.Enums;
+
 namespace ToDoList.Models;
 
 public class TodoItem
@@ -8,6 +10,7 @@ public class TodoItem
         UserId = details.UserId;
         Title = details.Title;
         Description = details.Description;
+        Priority = details.Priority;
         CreatedAt = DateTime.UtcNow;
         ScheduledDate = details.ScheduledDate;
         Deadline = details.Deadline;
@@ -20,6 +23,7 @@ public class TodoItem
     public string Title { get; private set; }
 
     public string Description { get; private set; }
+    public Priority Priority { get; private set; }
     
     public ICollection<Tag?> Tags { get; set; } = new List<Tag?>();
     
@@ -44,6 +48,7 @@ public class TodoItem
         Description = details.Description;
         Deadline = details.Deadline;
         ScheduledDate = details.ScheduledDate;
+        Priority = details.Priority;
         Tags.Clear();
         foreach (var tag in details.Tags)
         {
