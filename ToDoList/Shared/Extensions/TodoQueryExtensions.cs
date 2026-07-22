@@ -17,8 +17,7 @@ public static class TodoQueryExtensions
             query = query.Where(t => !t.IsDeleted);
         }
 
-        var userDate = (DateTime.TryParse(currentDateTime, out var parsed) ? parsed : DateTime.UtcNow).Date;
-
+        var userDate = DateTime.SpecifyKind(DateTime.TryParse(currentDateTime, out var parsed) ? parsed : DateTime.UtcNow, DateTimeKind.Utc).Date;
         return folderName?.ToLower() switch
         {
             "today" => query.Where(t => t.ScheduledDate != null && 

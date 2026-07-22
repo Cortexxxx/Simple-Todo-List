@@ -17,7 +17,7 @@ if (builder.Environment.IsDevelopment())
 }
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite(connectionString));
+builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString));
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddCors(options =>
@@ -45,7 +45,20 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
         options.User.AllowedUserNameCharacters = null;
     })
     .AddEntityFrameworkStores<AppDbContext>();  
-builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
+var jwtOptions = builder.Configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>() 
+                 ?? throw new InvalidOperationException("JwtOptions section is missing in configuration!");
+
+if (string.IsNullOrWhiteSpace(jwtOptions.SecretKey))
+{
+    throw new InvalidOperationException("JWT SecretKey is not configured!");
+}
+
+builder.Services.Configure<JwtOptions>(options =>
+{
+    options.SecretKey = jwtOptions.SecretKey;
+    options.ExpiresHours = jwtOptions.ExpiresHours;
+});
+
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddApiAuthentication(builder.Configuration);
 builder.Services.AddScoped<TodoService>();
