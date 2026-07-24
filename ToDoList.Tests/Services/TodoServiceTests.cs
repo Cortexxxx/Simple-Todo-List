@@ -1,31 +1,45 @@
 using ToDoList.Models;
 using ToDoList.Services;
-using FluentAssertions;
+using ToDoList.Infrastructure.Data;
 using Xunit;
 
 namespace ToDoList.Tests.Services;
 
-public class TodoServiceTests
+public partial class TodoServiceTests : IAsyncLifetime
 {
-    [Fact]
-    public async Task Add_ValidTodo_MustAddToStorage()
-    {
-        // Arrange
-        await using var context = TestDbContextFactory.Create();
-        var todoService = new TodoService(context);
-        var startCount = context.Todos.Count();
-        var todo = new TodoDetails()
-        {
-            Title = "Test title",
-        };
-        
-        // Act
-        var res = await todoService.Create(todo, new List<Guid>());
-        
-        // Assert
+    private readonly AppDbContext _context;
+    private readonly TodoService _todoService;
 
-        context.Todos.Should().HaveCount(startCount + 1, "because we added one todo");
-        res.Should().NotBeNull();
-        res.Title.Should().Be("Test title");
+    public TodoServiceTests()
+    {
+        _context = TestDbContextFactory.Create();
+        _todoService = new TodoService(_context);
+    }
+
+    public Task InitializeAsync() => Task.CompletedTask;
+    public async Task DisposeAsync() => await _context.DisposeAsync();
+
+    private TodoDetails CreateTestTodoDetails(string title = "Test title", Guid? userId = null)
+    {
+        return new TodoDetails
+        {
+            Title = title,
+            UserId = userId ?? Guid.NewGuid(),
+            Description = "Default Description"
+        };
+    }
+
+    private async Task<Tag> CreateAndSaveTestTagAsync(Guid userId, string name = "Test Tag")
+    {
+        var tag = new Tag
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            UserId = userId
+        };
+
+        _context.Tags.Add(tag);
+        await _context.SaveChangesAsync();
+        return tag;
     }
 }

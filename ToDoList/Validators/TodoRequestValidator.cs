@@ -1,5 +1,6 @@
 using FluentValidation;
 using ToDoList.Dtos;
+using ToDoList.Shared.Constants;
 
 namespace ToDoList.Validators;
 
@@ -7,9 +8,9 @@ public class TodoRequestValidator : AbstractValidator<TodoRequest>
 {
     public TodoRequestValidator()
     {
-        RuleFor(request => request.Title).NotEmpty().WithMessage("Название не должно быть пустым")
-            .MaximumLength(100).WithMessage("Длина названия не должна превышать 100 символов");
-        
-        RuleFor(request => request.Description).MaximumLength(2000).WithMessage("Длина названия не должна превышать 2000 символов");
+        RuleFor(request => request.Title).NotEmpty().WithMessage(ApiErrors.TodoTitleRequired)
+            .MaximumLength(100).WithMessage(ApiErrors.TodoTitleMaxLength);
+
+        RuleFor(request => request.Description).MaximumLength(2000).WithMessage(ApiErrors.TodoDescriptionMaxLength);
     }
 }

@@ -26,4 +26,25 @@
         <ProjectReference Include="..\ToDoList\ToDoList.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Services\TodoServiceTests.Create.cs">
+        <DependentUpon>TodoServiceTests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\TodoServiceTests.Remove.cs">
+        <DependentUpon>TodoServiceTests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\TodoServiceTests.Get.cs">
+        <DependentUpon>TodoServiceTests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\TodoServiceTests.Update.cs">
+        <DependentUpon>TodoServiceTests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\TodoServiceTests.GetAll.cs">
+        <DependentUpon>TodoServiceTests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Services\TodoServiceTests.CompleteUncomplete.cs">
+        <DependentUpon>TodoServiceTests.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

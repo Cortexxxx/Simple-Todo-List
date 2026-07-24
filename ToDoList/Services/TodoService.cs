@@ -18,12 +18,12 @@ public class TodoService
 
     public async Task<TodoItem> Create(TodoDetails todoDetails, ICollection<Guid> tagIds)
     {
+        ArgumentNullException.ThrowIfNull(todoDetails);
+        ArgumentNullException.ThrowIfNull(tagIds);
+        
         if (tagIds.Count != 0)
         {
-            var tags = await _context.Tags
-                .Where(t =>  tagIds.Contains(t.Id) && t.UserId == todoDetails.UserId)
-                .ToListAsync();
-            todoDetails.Tags = tags;
+            await ParseTags(todoDetails, tagIds);
         }
         
         var todo = new TodoItem(todoDetails);
@@ -32,11 +32,25 @@ public class TodoService
         return todo;
     }
 
+    private async Task ParseTags(TodoDetails todoDetails, ICollection<Guid> tagIds)
+    {
+        var tags = await _context.Tags
+            .Where(t =>  tagIds.Contains(t.Id) && t.UserId == todoDetails.UserId)
+            .ToListAsync();
+        
+        if (tagIds.Count != tags.Count)
+        {
+            throw new ArgumentException(message: "Invalid argument tags");
+        }
+        
+        todoDetails.Tags = tags;
+    }
+
     public async Task<bool> Remove(Guid id)
     {
         var todo = await Get(id);
 
-        if (todo is null)
+        if (todo is null || todo.IsDeleted)
         {
             return false;
         }
@@ -70,7 +84,8 @@ public class TodoService
 
     public async Task<TodoItem?> Update(Guid id, TodoDetails todoDetails)
     {
-        var todo = await _context.Todos.FindAsync(id);
+        var todo = await Get(id);
+        
         if (todo is null)
         {
             return null;

@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,7 @@ using ToDoList.Infrastructure.Authentication;
 using ToDoList.Infrastructure.Data;
 using ToDoList.Models;
 using ToDoList.Services;
+using ToDoList.Shared.Constants;
 using ToDoList.Shared.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -45,12 +47,12 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
         options.User.AllowedUserNameCharacters = null;
     })
     .AddEntityFrameworkStores<AppDbContext>();  
-var jwtOptions = builder.Configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>() 
-                 ?? throw new InvalidOperationException("JwtOptions section is missing in configuration!");
+var jwtOptions = builder.Configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>()
+                 ?? throw new InvalidOperationException(ApiErrors.JwtOptionsSectionMissing);
 
 if (string.IsNullOrWhiteSpace(jwtOptions.SecretKey))
 {
-    throw new InvalidOperationException("JWT SecretKey is not configured!");
+    throw new InvalidOperationException(ApiErrors.JwtSecretKeyNotConfigured);
 }
 
 builder.Services.Configure<JwtOptions>(options =>
@@ -68,7 +70,6 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
-
 var app = builder.Build();
 
 app.UseRouting();
