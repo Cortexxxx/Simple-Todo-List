@@ -15,7 +15,7 @@ public static class TagsEndpoints
 
         group.MapPost("", async (TagRequest tagRequest, TagsService tagsService, HttpContext context) =>
         {
-            var tag = await tagsService.Create(tagRequest, context.GetUserId());
+            var tag = await tagsService.Create(tagRequest.ToTagModel(context.GetUserId()));
             return Results.Ok(tag.ToResponse());
         }).Validate<TagRequest>().WithName(ApiEndpointNames.CreateTag);
 
@@ -46,11 +46,11 @@ public static class TagsEndpoints
             var tag = await tagsService.Get(id);
             return tag == null ? Results.NotFound() : Results.Ok(tag.ToResponse());
         }).WithName(ApiEndpointNames.GetTag);;
-
-        concreteTagGroup.MapDelete("", async (Guid id, TagsService tagsService) =>
-        {
-            await tagsService.Delete(id);
-            return Results.NoContent();
-        }).WithName(ApiEndpointNames.DeleteTag);;
+        // TODO: Add delete tag feature on frontend
+        // concreteTagGroup.MapDelete("", async (Guid id, TagsService tagsService) =>
+        // {
+        //     await tagsService.Delete(id);
+        //     return Results.NoContent();
+        // }).WithName(ApiEndpointNames.DeleteTag);;
     }
 }

@@ -30,4 +30,5 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
             Expires = DateTime.UtcNow.AddHours(_options.ExpiresHours)
         });
     }
+    
 }

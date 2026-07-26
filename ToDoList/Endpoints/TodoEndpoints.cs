@@ -1,11 +1,9 @@
-using FluentValidation;
 using ToDoList.Dtos;
 using ToDoList.Infrastructure.Data;
 using ToDoList.Services;
 using ToDoList.Shared.Constants;
 using ToDoList.Shared.Extensions;
 using ToDoList.Shared.Mappings;
-using ToDoList.Validators;
 
 namespace ToDoList.Endpoints;
 

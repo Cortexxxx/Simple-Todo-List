@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using ToDoList.Dtos;
 using ToDoList.Infrastructure.Data;
 using ToDoList.Models;
 
@@ -7,21 +6,15 @@ namespace ToDoList.Services;
 
 public class TagsService
 {
-    private AppDbContext _context;
+    private readonly AppDbContext _context;
 
     public TagsService(AppDbContext context)
     {
         _context = context;
     }
 
-    public async Task<Tag> Create(TagRequest request, Guid userId)
+    public async Task<Tag> Create(Tag tag)
     {
-        var tag = new Tag
-        {
-            UserId = userId,
-            Color = request.Color,
-            Name = request.Name,
-        };
         _context.Tags.Add(tag);
         await _context.SaveChangesAsync();
         return tag;
@@ -40,7 +33,12 @@ public class TagsService
 
     public async Task Delete(Guid id)
     {
-        _context.Tags.Remove(await Get(id));
+        var tag = await Get(id);
+        if (tag == null)
+        {
+            return;
+        }
+        _context.Tags.Remove(tag);
         await _context.SaveChangesAsync();
     }
 }

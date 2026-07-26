@@ -1,4 +1,3 @@
-
 namespace ToDoList.Models;
 
 public class Tag
@@ -11,5 +10,4 @@ public class Tag
     public Guid UserId { get; set; }
     public string Color { get; set; } = "#808080";
     public string Name { get; set; }
-    public ICollection<TodoItem> TodoItems { get; set; } = new List<TodoItem>();
 }

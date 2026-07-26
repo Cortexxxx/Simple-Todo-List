@@ -13,7 +13,6 @@ public static class TagMappings
             Name = request.Name,
             Color = request.Color,
             UserId = userId,
-            TodoItems = new List<TodoItem>()
         };
     }
     
