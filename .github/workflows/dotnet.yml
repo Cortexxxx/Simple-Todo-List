@@ -44,4 +44,4 @@ jobs:
         with:
           context: ./ToDoList
           push: ${{ github.event_name == 'push' }}
-          tags: ghcr.io/cortexxxx/todo-backend:${{ github.sha }}
+          tags: ghcr.io/cortexxxx/infocus-api:${{ github.sha }}
