@@ -30,12 +30,14 @@ public static class AuthEndpoints
             };
             
             var registrationResult = await userManager.CreateAsync(user, request.Password);
+            
             if (!registrationResult.Succeeded)
             {
                 return Results.Problem(
                     detail: ApiErrors.InternalServerError,
                     statusCode: StatusCodes.Status500InternalServerError);
             }
+            
             return Results.Ok(new { user.Id, user.Email });
         }).Validate<RegisterUserRequest>().WithName(ApiEndpointNames.RegisterUser);
         
