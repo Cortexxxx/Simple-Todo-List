@@ -24,6 +24,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             b.Property(t => t.IsDeleted);
             b.Property(t => t.ScheduledDate);
             b.Property(t => t.Deadline);
+            b.HasMany(t => t.Tags).WithMany();
         });
     }
 }

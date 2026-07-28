@@ -10,5 +10,5 @@ public record TodoDetails
     public Priority Priority { get; set; }
     public DateTime? ScheduledDate { get; set; }
     public DateTime? Deadline { get; set; }
-    public ICollection<Tag?> Tags { get; set; } = new List<Tag?>();
+    public ICollection<Tag> Tags { get; set; } = new List<Tag>();
 }

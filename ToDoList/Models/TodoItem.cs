@@ -25,17 +25,17 @@ public class TodoItem
     public string Description { get; private set; }
     public Priority Priority { get; private set; }
     
-    public ICollection<Tag?> Tags { get; set; } = new List<Tag?>();
+    public ICollection<Tag> Tags { get; set; } = new List<Tag>();
     
     public bool IsDone { get; private set; }
     
     public DateTime CreatedAt { get; private set; }
     
-    public DateTime? ScheduledDate { get; private set; } = null;
+    public DateTime? ScheduledDate { get; private set; }
     
-    public DateTime? Deadline { get; private set; } = null;
+    public DateTime? Deadline { get; private set; }
 
-    public bool IsDeleted { get; private set; } = false;
+    public bool IsDeleted { get; private set; }
 
     public void MarkAsCompleted() => IsDone = true;
     public void MarkAsUncompleted() => IsDone = false;
