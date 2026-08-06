@@ -21,6 +21,9 @@
         </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.10" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+
+        <!-- Явный оверрайд транзитивной зависимости из-за уязвимости GHSA-2m69-gcr7-jv3q в 2.1.11 -->
+        <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.12" />
         
         <!-- JWT и Swagger -->
 <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.21.0" />

@@ -4,7 +4,13 @@ namespace ToDoList.Models;
 
 public class TodoItem
 {
-    private TodoItem() { }
+    // ReSharper disable once UnusedMember.Local
+    // Entity framework uses this constructor
+    private TodoItem()
+    {
+        Title = null!;
+        Description = null!;
+    }
     public TodoItem(TodoDetails details)
     {
         UserId = details.UserId;

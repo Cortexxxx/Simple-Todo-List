@@ -113,7 +113,7 @@ public static class AuthEndpoints
                             ?? principal.Identity?.Name;
                 return string.IsNullOrEmpty(email) ? Results.Unauthorized() : Results.Ok(new {email});
             }
-            catch (Exception _)
+            catch (Exception)
             {
                 return Results.Unauthorized();
             }

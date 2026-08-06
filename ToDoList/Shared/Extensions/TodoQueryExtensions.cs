@@ -1,7 +1,5 @@
-using System.Linq.Expressions;
 using ToDoList.Dtos;
 using ToDoList.Models;
-using ToDoList.Models.Enums;
 
 namespace ToDoList.Shared.Extensions;
 
@@ -58,7 +56,7 @@ public static class TodoQueryExtensions
         var rawTag = folderName.StartsWith("tag-") ? folderName["tag-".Length..] : folderName;
 
         return Guid.TryParse(rawTag, out var tagId)
-            ? query.Where(t => t.Tags.Any(tag => tag != null && tag.Id == tagId))
+            ? query.Where(t => t.Tags.Any(tag => tag.Id == tagId))
             : query;
     }
 }

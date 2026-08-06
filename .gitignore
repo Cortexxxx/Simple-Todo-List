@@ -15,7 +15,12 @@ bld/
 *.suo
 *.userosscache
 *.sln.docstates
-.claude
+
+##          Claude Code                ##
+######################################
+.claude/
+CLAUDE.md
+
 ##            User Secrets            ##
 ######################################
 # Хранилище секретов для локальной разработки

@@ -18,7 +18,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         {
             b.Property(t => t.Title);
             b.Property(t => t.Description);
-            b.Property(t => t.Priority);;
+            b.Property(t => t.Priority);
             b.Property(t => t.IsDone);
             b.Property(t => t.CreatedAt);
             b.Property(t => t.IsDeleted);

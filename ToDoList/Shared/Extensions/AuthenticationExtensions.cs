@@ -1,6 +1,5 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using ToDoList.Infrastructure.Authentication;
 using ToDoList.Infrastructure.Data;
@@ -45,7 +44,6 @@ public static class AuthenticationExtensions
                 options.Password.RequiredUniqueChars = 0;
 
                 options.User.RequireUniqueEmail = false; 
-                options.User.AllowedUserNameCharacters = null;
             })
             .AddEntityFrameworkStores<AppDbContext>();
         

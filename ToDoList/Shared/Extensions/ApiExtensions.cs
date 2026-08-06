@@ -1,8 +1,3 @@
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using ToDoList.Infrastructure.Authentication;
-
 namespace ToDoList.Shared.Extensions;
 
 public static class ApiExtensions

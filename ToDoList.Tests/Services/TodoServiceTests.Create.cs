@@ -100,7 +100,7 @@ public partial class TodoServiceTests
         // Arrange
         
         // Act
-        var act = () => _todoService.Create(null, new List<Guid>());
+        var act = () => _todoService.Create(null!, new List<Guid>());
         
         // Assert
 
@@ -113,7 +113,7 @@ public partial class TodoServiceTests
         // Arrange
         
         // Act
-        var act = () => _todoService.Create(new TodoDetails(), null);
+        var act = () => _todoService.Create(new TodoDetails(), null!);
         
         // Assert
 
